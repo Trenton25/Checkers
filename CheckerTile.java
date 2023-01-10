@@ -1,24 +1,21 @@
 import javax.swing.*;
 import java.awt.*;
 
-public class CheckerTile extends JPanel {
+public class CheckerTile extends JButton {
 
     private Color color;
-    private static boolean isRed = false;
 
-    public CheckerTile(Color startColor) {
-        if (startColor == Color.BLACK) {
-            isRed = true;
-        }
+    private ImageIcon image;
 
-        if (isRed) {
-            color = Color.BLACK;
-            isRed = false;
-        } else {
-            color = Color.RED;
-            isRed = true;
-        }
-
+    public CheckerTile(Color c) {
+        color = c;
         setBackground(color);
+    }
+
+    public Color getColor() {return color;}
+
+    public void setImg(ImageIcon img) {
+        image = img;
+        setIcon(image);
     }
 }
