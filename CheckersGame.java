@@ -4,8 +4,19 @@ import java.util.ArrayList;
 
 public class CheckersGame {
 
-    JFrame frame;
-    ArrayList<CheckerTile> tiles;
+    private JFrame frame;
+    private final int frameWidth = 1000;
+    private final int frameHeight = 1000;
+
+    private final int pieceSize = 100;
+    private ArrayList<CheckerTile> tiles;
+    private final int[] blackStartingPos = {0, 2, 4, 6,
+                                            9, 11, 13, 15,
+                                            16, 18, 20, 22};
+
+    private final int[] redStartingPos = {41, 43, 45, 47,
+                                            48, 50, 52, 54,
+                                            57, 59, 61, 63};
 
     public CheckersGame() {
         final Main main = new Main();
@@ -27,7 +38,7 @@ public class CheckersGame {
         tiles = new ArrayList<>();
 
         frame = new JFrame("Checkers");
-        frame.setSize(1000, 1000);
+        frame.setSize(frameWidth, frameHeight);
         frame.setLayout(new GridLayout(8, 8));
         frame.setVisible(true);
 
@@ -40,11 +51,26 @@ public class CheckersGame {
             c = switchColor(c);
         }
 
-        ImageIcon img = new ImageIcon("black_piece.jpg");
-        tiles.get(0).setIcon(img);
-
         for (CheckerTile tile: tiles) {
             frame.add(tile);
+        }
+
+        for (int i = 0; i < blackStartingPos.length; i++) {
+            ImageIcon imgIcon = new ImageIcon("black_piece.png");
+            Image image = imgIcon.getImage();
+            Image newImage = image.getScaledInstance(pieceSize, pieceSize, Image.SCALE_DEFAULT);
+            imgIcon = new ImageIcon(newImage);
+
+            tiles.get(blackStartingPos[i]).setIcon(imgIcon);
+        }
+
+        for (int i = 0; i < redStartingPos.length; i++) {
+            ImageIcon imgIcon = new ImageIcon("red_piece.png");
+            Image image = imgIcon.getImage();
+            Image newImage = image.getScaledInstance(pieceSize, pieceSize, Image.SCALE_DEFAULT);
+            imgIcon = new ImageIcon(newImage);
+
+            tiles.get(redStartingPos[i]).setIcon(imgIcon);
         }
     }
 }
