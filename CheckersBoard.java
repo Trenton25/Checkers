@@ -8,13 +8,15 @@ public class CheckersBoard extends JPanel implements ActionListener {
 
     private int pieceSize;
     private ArrayList<CheckerTile> tiles;
-    private final int[] blackStartingPos = {0, 2, 4, 6,
-            9, 11, 13, 15,
-            16, 18, 20, 22};
+    private final int[] blackStartingPos = {1, 3, 5, 7,
+                                            8, 10, 12, 14,
+                                            17, 19, 21, 23};
 
-    private final int[] redStartingPos = {41, 43, 45, 47,
-            48, 50, 52, 54,
-            57, 59, 61, 63};
+    private final int[] redStartingPos = {40, 42, 44, 46,
+                                          49, 51, 53, 55,
+                                          56, 58, 60, 62};
+
+    private CheckerTile selectedTile;
 
     public CheckersBoard(int boardSize) {
         final Main main = new Main();
@@ -43,7 +45,7 @@ public class CheckersBoard extends JPanel implements ActionListener {
         Color c = Color.RED;
         for(int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                tiles.add(new CheckerTile(c));
+                tiles.add(new CheckerTile(c, pieceSize));
                 c = switchColor(c);
             }
             c = switchColor(c);
@@ -55,33 +57,74 @@ public class CheckersBoard extends JPanel implements ActionListener {
         }
 
         for (int i = 0; i < blackStartingPos.length; i++) {
-            ImageIcon img = new ImageIcon("black_piece.png");
-            img = resizeImage(img);
-            tiles.get(blackStartingPos[i]).setImage(img);
+            tiles.get(blackStartingPos[i]).setPiece(Color.BLACK);
         }
 
         for (int i = 0; i < redStartingPos.length; i++) {
-            ImageIcon img = new ImageIcon("red_piece.png");
-            img = resizeImage(img);
-            tiles.get(redStartingPos[i]).setImage(img);
+            tiles.get(redStartingPos[i]).setPiece(Color.red);
         }
-    }
-
-    private ImageIcon resizeImage(ImageIcon img) {
-        Image image = img.getImage();
-        Image newImage = image.getScaledInstance(pieceSize, pieceSize, Image.SCALE_DEFAULT);
-        return new ImageIcon(newImage);
     }
 
     public void actionPerformed(ActionEvent e) {
+        if (selectedTile != null) {
+            selectedTile.setBackground(Color.BLACK);
+        }
+
         CheckerTile tile = (CheckerTile) e.getSource();
 
-        if (tile.hasImage()) {
-            tile.removeImage();
+       if (tile.hasPiece()) {
+           selectedTile = tile;
+           selectedTile.setBackground(Color.lightGray);
         } else {
-            ImageIcon img = new ImageIcon("red_piece.png");
-            img = resizeImage(img);
-            tile.setImage(img);
+            moveTile(selectedTile, tile);
+            selectedTile = null;
         }
+    }
+
+    public void moveTile(CheckerTile selectedTile, CheckerTile destinationTile) {
+        if (destinationTile.hasPiece())
+            return;
+
+        if (selectedTile != null && isOpenSpaceMove(selectedTile, destinationTile) ) {
+            destinationTile.setPiece(selectedTile.getPieceColor());
+            selectedTile.removePiece();
+        }
+
+        if (selectedTile != null && isJumpMove(selectedTile, destinationTile)) {
+
+        }
+    }
+
+    public boolean isJumpMove(CheckerTile selectedTile, CheckerTile destinationTile) {
+        int selectedTileIndex = tiles.indexOf(selectedTile);
+        Color selectedPieceColor = selectedTile.getPieceColor();
+        Color opposingTeamColor = selectedPieceColor == Color.BLACK ? Color.RED : Color.BLACK;
+
+        for (int offset : getValidIndexOffsets(selectedTile.getPieceColor())) {
+            if (destinationTile == tiles.get(selectedTileIndex + (2 * offset)) &&
+                    tiles.get(selectedTileIndex + offset).hasPiece() &&
+                    tiles.get(selectedTileIndex + offset).getPieceColor() == opposingTeamColor)
+                return true;
+        }
+        return false;
+    }
+
+    public boolean isOpenSpaceMove(CheckerTile selectedTile, CheckerTile destinationTile) {
+        int selectedTileIndex = tiles.indexOf(selectedTile);
+        for (int offset : getValidIndexOffsets(selectedTile.getPieceColor())) {
+            if (destinationTile == tiles.get(selectedTileIndex + offset))
+                return true;
+        }
+        return false;
+    }
+
+    public int[] getValidIndexOffsets(Color selectedPieceColor) {
+        int[] validIndexOffsets;
+        if (selectedPieceColor == Color.BLACK) {
+            validIndexOffsets = new int[] {7, 9};
+        } else {
+            validIndexOffsets = new int[] {-7, -9};
+        }
+        return validIndexOffsets;
     }
 }

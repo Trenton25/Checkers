@@ -6,34 +6,47 @@ public class CheckerTile extends JButton {
     private Color color;
 
     private ImageIcon image;
+    private Color pieceColor;
+    private int pieceSize;
 
-    public CheckerTile(Color c) {
+    public CheckerTile(Color c, int pieceSize) {
         color = c;
         setBackground(color);
         setOpaque(true);
         setBorderPainted(false);
+
+        this.pieceSize = pieceSize;
     }
 
-    public Color getColor() {return color;}
-
-    public void setImage(ImageIcon img) {
-        image = img;
-        setIcon(image);
+    public Color getPieceColor() {
+        return pieceColor;
     }
 
-    public ImageIcon getImage() {
-        return image;
-    }
-
-    public boolean hasImage() {
+    public boolean hasPiece() {
         if (image != null) {
             return true;
         }
         return false;
     }
 
-    public void removeImage() {
+    public void removePiece() {
         image = null;
         setIcon(null);
+    }
+
+    public void setPiece(Color color) {
+        pieceColor = color;
+        image = color == Color.BLACK ?
+                new ImageIcon("black_piece.png") :
+                new ImageIcon("red_piece.png");
+        image = resizeImage(image);
+        setIcon(image);
+    }
+
+
+    private ImageIcon resizeImage(ImageIcon img) {
+        Image image = img.getImage();
+        Image newImage = image.getScaledInstance(pieceSize, pieceSize, Image.SCALE_DEFAULT);
+        return new ImageIcon(newImage);
     }
 }

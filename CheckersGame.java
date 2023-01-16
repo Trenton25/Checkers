@@ -7,6 +7,7 @@ public class CheckersGame {
     private JFrame frame;
     private final int frameSize = 800;
 
+
     public CheckersGame() {
         frame = new JFrame("Checkers");
         frame.setSize(frameSize, frameSize);
