@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class CheckersBoard extends JPanel implements ActionListener {
 
     private int pieceSize;
-    private ArrayList<CheckerTile> tiles;
+    protected ArrayList<CheckerTile> tiles;
     private final int[] blackStartingPos = {1, 3, 5, 7,
                                             8, 10, 12, 14,
                                             17, 19, 21, 23};
@@ -17,12 +17,15 @@ public class CheckersBoard extends JPanel implements ActionListener {
                                           56, 58, 60, 62};
 
     private CheckerTile selectedTile;
+    private Color currentTurn;
+    public boolean isTurnOver;
 
-    public CheckersBoard(int boardSize) {
+    public CheckersBoard(int boardSize, Color currentTurn) {
+        tiles = new ArrayList<>();
         final Main main = new Main();
         SwingUtilities.invokeLater(new Runnable(){
             public void run(){
-                initComponents(main, boardSize);
+                initComponents(main, boardSize, currentTurn);
             }
         });
     }
@@ -34,9 +37,10 @@ public class CheckersBoard extends JPanel implements ActionListener {
         return Color.RED;
     }
 
-    private void initComponents(Main main, int frameSize) {
+    private void initComponents(Main main, int frameSize, Color currentTurn) {
         pieceSize = frameSize/10;
-        tiles = new ArrayList<>();
+        isTurnOver = false;
+        this.currentTurn = currentTurn;
 
         setSize(frameSize, frameSize);
         setLayout(new GridLayout(8, 8));
@@ -72,6 +76,10 @@ public class CheckersBoard extends JPanel implements ActionListener {
 
         CheckerTile tile = (CheckerTile) e.getSource();
 
+        if (tile.getPieceColor() != currentTurn) {
+            return;
+        }
+
        if (tile.hasPiece()) {
            selectedTile = tile;
            selectedTile.setBackground(Color.lightGray);
@@ -91,8 +99,9 @@ public class CheckersBoard extends JPanel implements ActionListener {
         }
 
         if (selectedTile != null && isJumpMove(selectedTile, destinationTile)) {
-
+            performJumpMove(selectedTile, destinationTile);
         }
+        isTurnOver = true;
     }
 
     public boolean isJumpMove(CheckerTile selectedTile, CheckerTile destinationTile) {
@@ -107,6 +116,16 @@ public class CheckersBoard extends JPanel implements ActionListener {
                 return true;
         }
         return false;
+    }
+
+    public void performJumpMove(CheckerTile selectedTile, CheckerTile destinationTile) {
+        int selectedTileIndex = tiles.indexOf(selectedTile);
+        int destinationTileIndex = tiles.indexOf(destinationTile);
+        Color selectedPieceColor = selectedTile.getPieceColor();
+
+        destinationTile.setPiece(selectedPieceColor);
+        selectedTile.removePiece();
+        tiles.get(selectedTileIndex + (destinationTileIndex - selectedTileIndex)/2).removePiece();
     }
 
     public boolean isOpenSpaceMove(CheckerTile selectedTile, CheckerTile destinationTile) {
