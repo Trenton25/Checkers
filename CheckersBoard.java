@@ -76,12 +76,6 @@ public class CheckersBoard extends JPanel implements ActionListener {
 
         CheckerTile tile = (CheckerTile) e.getSource();
 
-        System.out.println(!tile.hasPiece());
-        if (tile.getPieceColor() != currentTurn || !(tile.hasPiece())) {
-            System.out.println(!tile.hasPiece());
-            return;
-        }
-
        if (tile.hasPiece()) {
            selectedTile = tile;
            selectedTile.setBackground(Color.lightGray);
@@ -94,15 +88,22 @@ public class CheckersBoard extends JPanel implements ActionListener {
     public void moveTile(CheckerTile selectedTile, CheckerTile destinationTile) {
         if (destinationTile.hasPiece())
             return;
-
+        
+        try {
+          if (selectedTile.getPieceColor() != currentTurn) {
+            return;    
+          }
+        } catch (Exception e) {
+          return;
+        }
+        
         if (selectedTile != null && isOpenSpaceMove(selectedTile, destinationTile) ) {
             destinationTile.setPiece(selectedTile.getPieceColor());
             selectedTile.removePiece();
-        }
-
-        if (selectedTile != null && isJumpMove(selectedTile, destinationTile)) {
+        } else if (selectedTile != null && isJumpMove(selectedTile, destinationTile)) {
             performJumpMove(selectedTile, destinationTile);
-        }
+        } else {return;}
+
         endTurn();
     }
 
