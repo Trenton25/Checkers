@@ -76,7 +76,9 @@ public class CheckersBoard extends JPanel implements ActionListener {
 
         CheckerTile tile = (CheckerTile) e.getSource();
 
-        if (tile.getPieceColor() != currentTurn) {
+        System.out.println(!tile.hasPiece());
+        if (tile.getPieceColor() != currentTurn || !(tile.hasPiece())) {
+            System.out.println(!tile.hasPiece());
             return;
         }
 
@@ -101,7 +103,12 @@ public class CheckersBoard extends JPanel implements ActionListener {
         if (selectedTile != null && isJumpMove(selectedTile, destinationTile)) {
             performJumpMove(selectedTile, destinationTile);
         }
+        endTurn();
+    }
+
+    public void endTurn() {
         isTurnOver = true;
+        currentTurn = currentTurn == Color.BLACK ? Color.red : Color.BLACK;
     }
 
     public boolean isJumpMove(CheckerTile selectedTile, CheckerTile destinationTile) {

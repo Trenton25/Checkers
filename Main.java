@@ -4,9 +4,5 @@ public class Main {
 
         CheckersGame game = new CheckersGame();
 
-        while (!game.isOver()) {
-            game.performTurn();
-            game.endTurn();
-        }
     }
 }

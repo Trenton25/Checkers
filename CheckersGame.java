@@ -7,7 +7,7 @@ public class CheckersGame {
     private JFrame frame;
     private final int frameSize = 800;
 
-    private CheckersBoard board;
+    public CheckersBoard board;
     public Color currentTurn;
 
 
@@ -25,13 +25,5 @@ public class CheckersGame {
         if (board.tiles.isEmpty())
             return true;
         return false;
-    }
-
-    public void performTurn() {
-        while (!board.isTurnOver) {}
-    }
-    public void endTurn() {
-        if (currentTurn == Color.BLACK)
-            currentTurn = Color.red;
     }
 }
