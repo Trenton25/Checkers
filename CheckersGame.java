@@ -8,22 +8,30 @@ public class CheckersGame {
     private final int frameSize = 800;
 
     public CheckersBoard board;
-    public Color currentTurn;
-
-
-    public CheckersGame() {
-        currentTurn = Color.BLACK;
-        frame = new JFrame("Checkers");
-        frame.setSize(frameSize, frameSize);
-        frame.setVisible(true);
-        board = new CheckersBoard(frameSize, currentTurn);
-
-        frame.add(board);
-    }
 
     public boolean isOver() {
         if (board.tiles.isEmpty())
             return true;
         return false;
+    }
+
+    public void initializeGame() {
+        frame = new JFrame("Checkers");
+        frame.setSize(frameSize, frameSize);
+        frame.setVisible(true);
+        board = new CheckersBoard(frameSize);
+        frame.add(board);
+    }
+
+    public void startGame() {
+        CheckersGame game = new CheckersGame();
+    }
+
+    public void endGame() {}
+
+    public void play() {
+        initializeGame();
+        startGame();
+        endGame();
     }
 }

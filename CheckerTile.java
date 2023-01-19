@@ -7,6 +7,7 @@ public class CheckerTile extends JButton {
 
     private ImageIcon image;
     private Color pieceColor;
+    public boolean hasKing;
     private int pieceSize;
 
     public CheckerTile(Color c, int pieceSize) {
@@ -17,6 +18,8 @@ public class CheckerTile extends JButton {
 
         this.pieceSize = pieceSize;
     }
+
+    public Color getColor() {return color;}
 
     public Color getPieceColor() {
         return pieceColor;
@@ -31,6 +34,8 @@ public class CheckerTile extends JButton {
 
     public void removePiece() {
         image = null;
+        pieceColor = null;
+        hasKing = false;
         setIcon(null);
     }
 
@@ -39,6 +44,16 @@ public class CheckerTile extends JButton {
         image = color == Color.BLACK ?
                 new ImageIcon("black_piece.png") :
                 new ImageIcon("red_piece.png");
+        image = resizeImage(image);
+        setIcon(image);
+    }
+
+    public void setKing(Color color) {
+        hasKing = true;
+        pieceColor = color;
+        image = color == Color.BLACK ?
+                new ImageIcon("black_king.png") :
+                new ImageIcon("red_king.png");
         image = resizeImage(image);
         setIcon(image);
     }

@@ -16,11 +16,16 @@ public class CheckersBoard extends JPanel implements ActionListener {
                                           49, 51, 53, 55,
                                           56, 58, 60, 62};
 
+    private final int[] topEdgePositions = {1, 3, 5, 7};
+    private final int[] bottomEdgePositions = {56, 58, 60, 62};
+
     private CheckerTile selectedTile;
     private Color currentTurn;
     public boolean isTurnOver;
+    private CheckerTile moveNext;
+    private ArrayList<CheckerTile> piecesToMove;
 
-    public CheckersBoard(int boardSize, Color currentTurn) {
+    public CheckersBoard(int boardSize) {
         tiles = new ArrayList<>();
         final Main main = new Main();
         SwingUtilities.invokeLater(new Runnable(){
@@ -38,6 +43,8 @@ public class CheckersBoard extends JPanel implements ActionListener {
     }
 
     private void initComponents(Main main, int frameSize, Color currentTurn) {
+        currentTurn = Color.BLACK;
+        piecesToMove = new ArrayList<>();
         pieceSize = frameSize/10;
         isTurnOver = false;
         this.currentTurn = currentTurn;
@@ -86,25 +93,74 @@ public class CheckersBoard extends JPanel implements ActionListener {
     }
 
     public void moveTile(CheckerTile selectedTile, CheckerTile destinationTile) {
-        if (destinationTile.hasPiece())
-            return;
-        
+        if (moveNext != null) {
+            selectedTile = moveNext;
+            moveNext = null;
+        }
         try {
-          if (selectedTile.getPieceColor() != currentTurn) {
-            return;    
-          }
+            if (selectedTile.hasPiece() && selectedTile.getPieceColor() != currentTurn)
+                return;
         } catch (Exception e) {
-          return;
+            return;
+        }
+
+        ArrayList<CheckerTile> currentColorPiecesToMove = new ArrayList<>();
+        for (CheckerTile tile : tiles) {
+            if (tile.getPieceColor() == currentTurn && hasJumpMove(tile)) {
+                currentColorPiecesToMove.add(tile);
+            }
+        }
+
+        if (!currentColorPiecesToMove.contains(selectedTile) && !currentColorPiecesToMove.isEmpty()) {
+            return;
         }
         
-        if (selectedTile != null && isOpenSpaceMove(selectedTile, destinationTile) ) {
-            destinationTile.setPiece(selectedTile.getPieceColor());
+        if (isOpenSpaceMove(selectedTile, destinationTile) ) {
+            if (selectedTile.hasKing) {
+                destinationTile.setKing(selectedTile.getPieceColor());
+            } else {
+                destinationTile.setPiece(selectedTile.getPieceColor());
+            }
             selectedTile.removePiece();
-        } else if (selectedTile != null && isJumpMove(selectedTile, destinationTile)) {
+        } else if (isJumpMove(selectedTile, destinationTile)) {
             performJumpMove(selectedTile, destinationTile);
+
+            if (checkPromo(destinationTile))
+                promote(destinationTile);
+
+            if (hasJumpMove(destinationTile)) {
+                moveNext = destinationTile;
+                return;
+            }
         } else {return;}
 
+        if (checkPromo(destinationTile))
+            promote(destinationTile);
+
         endTurn();
+    }
+
+    public boolean checkPromo(CheckerTile tile) {
+        if (tile.getPieceColor() == Color.BLACK) {
+            for (int pos : bottomEdgePositions) {
+                if (tiles.indexOf(tile) == pos) {
+                    return true;
+                }
+            }
+        } else {
+            for (int pos : topEdgePositions) {
+                if (tiles.indexOf(tile) == pos) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public void promote(CheckerTile tile) {
+        Color pieceColor = tile.getPieceColor();
+        tile.removePiece();
+        tile.setKing(pieceColor);
     }
 
     public void endTurn() {
@@ -112,12 +168,32 @@ public class CheckersBoard extends JPanel implements ActionListener {
         currentTurn = currentTurn == Color.BLACK ? Color.red : Color.BLACK;
     }
 
+    public boolean hasJumpMove(CheckerTile tile) {
+       if (tile.hasPiece()) {
+            int[] offsets = getValidIndexOffsets(tile);
+            Color oppositeColor = tile.getPieceColor() == Color.BLACK ? Color.RED : Color.BLACK;
+
+            try {
+                for (int offset : offsets) {
+                    if (tiles.get(tiles.indexOf(tile) + offset).getPieceColor() == oppositeColor &&
+                            !(tiles.get(tiles.indexOf(tile) + (offset * 2)).hasPiece()) &&
+                            tiles.get(tiles.indexOf(tile) + (offset * 2)).getColor() == Color.BLACK) {
+                        return true;
+                    }
+                }
+            } catch (IndexOutOfBoundsException e) {
+                return false;
+            }
+        }
+       return false;
+    }
+
     public boolean isJumpMove(CheckerTile selectedTile, CheckerTile destinationTile) {
         int selectedTileIndex = tiles.indexOf(selectedTile);
         Color selectedPieceColor = selectedTile.getPieceColor();
         Color opposingTeamColor = selectedPieceColor == Color.BLACK ? Color.RED : Color.BLACK;
 
-        for (int offset : getValidIndexOffsets(selectedTile.getPieceColor())) {
+        for (int offset : getValidIndexOffsets(selectedTile)) {
             if (destinationTile == tiles.get(selectedTileIndex + (2 * offset)) &&
                     tiles.get(selectedTileIndex + offset).hasPiece() &&
                     tiles.get(selectedTileIndex + offset).getPieceColor() == opposingTeamColor)
@@ -131,23 +207,36 @@ public class CheckersBoard extends JPanel implements ActionListener {
         int destinationTileIndex = tiles.indexOf(destinationTile);
         Color selectedPieceColor = selectedTile.getPieceColor();
 
-        destinationTile.setPiece(selectedPieceColor);
+        if (selectedTile.hasKing) {
+            destinationTile.setKing(selectedPieceColor);
+        } else {
+            destinationTile.setPiece(selectedPieceColor);
+        }
         selectedTile.removePiece();
         tiles.get(selectedTileIndex + (destinationTileIndex - selectedTileIndex)/2).removePiece();
     }
 
     public boolean isOpenSpaceMove(CheckerTile selectedTile, CheckerTile destinationTile) {
+        if (hasJumpMove(selectedTile)) {
+            return false;
+        }
+
         int selectedTileIndex = tiles.indexOf(selectedTile);
-        for (int offset : getValidIndexOffsets(selectedTile.getPieceColor())) {
+        for (int offset : getValidIndexOffsets(selectedTile)) {
             if (destinationTile == tiles.get(selectedTileIndex + offset))
                 return true;
         }
         return false;
     }
 
-    public int[] getValidIndexOffsets(Color selectedPieceColor) {
+    public int[] getValidIndexOffsets(CheckerTile tile) {
         int[] validIndexOffsets;
-        if (selectedPieceColor == Color.BLACK) {
+
+        if (tile.hasKing) {
+            return new int[] {-7, -9, 7, 9};
+        }
+
+        if (tile.getPieceColor() == Color.BLACK) {
             validIndexOffsets = new int[] {7, 9};
         } else {
             validIndexOffsets = new int[] {-7, -9};
