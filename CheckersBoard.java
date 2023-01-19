@@ -69,11 +69,9 @@ public class CheckersBoard extends JPanel implements ActionListener {
 
         for (int i = 0; i < blackStartingPos.length; i++) {
             tiles.get(blackStartingPos[i]).setPiece(Color.BLACK);
-        }
-
-        for (int i = 0; i < redStartingPos.length; i++) {
             tiles.get(redStartingPos[i]).setPiece(Color.red);
         }
+
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -223,8 +221,10 @@ public class CheckersBoard extends JPanel implements ActionListener {
 
         int selectedTileIndex = tiles.indexOf(selectedTile);
         for (int offset : getValidIndexOffsets(selectedTile)) {
-            if (destinationTile == tiles.get(selectedTileIndex + offset))
-                return true;
+            try {
+                if (destinationTile == tiles.get(selectedTileIndex + offset))
+                    return true;
+            } catch (ArrayIndexOutOfBoundsException e) {}
         }
         return false;
     }
