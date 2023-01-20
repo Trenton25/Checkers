@@ -23,7 +23,7 @@ public class CheckersBoard extends JPanel implements ActionListener {
     private Color currentTurn;
     public boolean isTurnOver;
     private CheckerTile moveNext;
-    private ArrayList<CheckerTile> piecesToMove;
+    private ArrayList<CheckerTile> highlightedTiles;
 
     public CheckersBoard(int boardSize) {
         tiles = new ArrayList<>();
@@ -43,8 +43,8 @@ public class CheckersBoard extends JPanel implements ActionListener {
     }
 
     private void initComponents(Main main, int frameSize, Color currentTurn) {
+        highlightedTiles = new ArrayList<>();
         currentTurn = Color.BLACK;
-        piecesToMove = new ArrayList<>();
         pieceSize = frameSize/10;
         isTurnOver = false;
         this.currentTurn = currentTurn;
@@ -75,11 +75,17 @@ public class CheckersBoard extends JPanel implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
+        for (CheckerTile tile : highlightedTiles) {
+            tile.setBackground(Color.BLACK);
+        }
+
         if (selectedTile != null) {
             selectedTile.setBackground(Color.BLACK);
         }
 
         CheckerTile tile = (CheckerTile) e.getSource();
+        if (tile.hasPiece() && tile.getPieceColor() == currentTurn)
+            highlightJumpMoves(tile);
 
        if (tile.hasPiece()) {
            selectedTile = tile;
@@ -227,6 +233,18 @@ public class CheckersBoard extends JPanel implements ActionListener {
             } catch (ArrayIndexOutOfBoundsException e) {}
         }
         return false;
+    }
+
+    public void highlightJumpMoves(CheckerTile tile) {
+        if (hasJumpMove(tile)) {
+            for (int offset : getValidIndexOffsets(tile)) {
+                if (isJumpMove(tile, tiles.get(tiles.indexOf(tile) + (offset * 2))) &&
+                        !tiles.get(tiles.indexOf(tile) + (offset * 2)).hasPiece()) {
+                    tiles.get(tiles.indexOf(tile) + offset).setBackground(Color.green);
+                    highlightedTiles.add(tiles.get(tiles.indexOf(tile) + offset));
+                }
+            }
+        }
     }
 
     public int[] getValidIndexOffsets(CheckerTile tile) {
