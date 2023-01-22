@@ -9,12 +9,6 @@ public class CheckersGame {
 
     public CheckersBoard board;
 
-    public boolean isOver() {
-        if (board.tiles.isEmpty())
-            return true;
-        return false;
-    }
-
     public void initializeGame() {
         frame = new JFrame("Checkers");
         frame.setSize(frameSize, frameSize);
