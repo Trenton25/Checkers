@@ -4,13 +4,12 @@ import java.util.ArrayList;
 
 public class CheckersGame {
 
-    private JFrame frame;
     private final int frameSize = 800;
 
     public CheckersBoard board;
 
     public void initializeGame() {
-        frame = new JFrame("Checkers");
+        JFrame frame = new JFrame("Checkers");
         frame.setSize(frameSize, frameSize);
         frame.setVisible(true);
         board = new CheckersBoard(frameSize);

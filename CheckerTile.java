@@ -3,12 +3,12 @@ import java.awt.*;
 
 public class CheckerTile extends JButton {
 
-    private Color color;
+    private final Color color;
 
     private ImageIcon image;
     private Color pieceColor;
     public boolean hasKing;
-    private int pieceSize;
+    private final int pieceSize;
 
     public CheckerTile(Color c, int pieceSize) {
         color = c;
@@ -26,10 +26,7 @@ public class CheckerTile extends JButton {
     }
 
     public boolean hasPiece() {
-        if (image != null) {
-            return true;
-        }
-        return false;
+        return image != null;
     }
 
     public void removePiece() {
@@ -42,8 +39,8 @@ public class CheckerTile extends JButton {
     public void setPiece(Color color) {
         pieceColor = color;
         image = color == Color.BLACK ?
-                new ImageIcon("black_piece.png") :
-                new ImageIcon("red_piece.png");
+                new ImageIcon("Pieces/black_piece.png") :
+                new ImageIcon("Pieces/red_piece.png");
         image = resizeImage(image);
         setIcon(image);
     }
@@ -52,8 +49,8 @@ public class CheckerTile extends JButton {
         hasKing = true;
         pieceColor = color;
         image = color == Color.BLACK ?
-                new ImageIcon("black_king.png") :
-                new ImageIcon("red_king.png");
+                new ImageIcon("Pieces/black_king.png") :
+                new ImageIcon("Pieces/red_king.png");
         image = resizeImage(image);
         setIcon(image);
     }
